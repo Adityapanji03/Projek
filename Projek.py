@@ -135,23 +135,6 @@ def laporan_keuangan(namaFile):
     else:
         print("Tidak ada data transaksi yang tersimpan.")
         
-def laporan_keuangan(namaFile):
-    if os.path.exists(namaFile):
-        data = pd.read_csv(namaFile)
-        if not data.empty:
-            # Menghitung total menu terjual tanpa menggunakan sum
-            total_pesanan = data['Nama Barang'].str.contains("Ayam|Es").sum()
-
-            print("===== Laporan Keuangan =====")
-            print(f"Total Pesanan: {total_pesanan}")
-            print(f"Total Ayam Tersisa: {stok_ayam} ayam")
-            print(f"Total Pendapatan: RP. {total_pesanan * (harga_ayam_geprek + harga_ayam_bakar + harga_es_teh + harga_es_jeruk)}")
-            print("==========================")
-        else:
-            print("Tidak ada data transaksi yang tersimpan.")
-    else:
-        print("Tidak ada data transaksi yang tersimpan.")
-
 
 def hapus_transaksi():
 
