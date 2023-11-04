@@ -73,7 +73,7 @@ def tambahkan_transaksi():
         print(f"{nama_barang} (Rp {total_harga})")
 
         pilihan = str(input("ingin mencetak struk? (ya/tidak)"))
-        if pilihan == ya:
+        if pilihan == "ya":
             print("=====Geprek Barokah=====")
             print("="*10, "Geprek Barokah", "="*10)
             print("Nama: ", nama_pelanggan)
@@ -82,8 +82,8 @@ def tambahkan_transaksi():
             print("Total Harga: Rp", total_harga)
             print("Terima Kasih, Jangan Lupa Mampir Kembali !")
             print("="*40)
-        else:
-            continue 
+        elif == "tidak":
+            print("struk tidak dicetak")
 
         # Menyimpan transaksi dalam DataFrame
         transaksi = pd.DataFrame({'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
