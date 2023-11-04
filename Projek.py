@@ -10,9 +10,15 @@ harga_ayam_bakar = 16000
 harga_es_teh = 3000
 harga_es_jeruk = 4000
 
-def tambahkan_transaksi():
-    tanggal = input("Masukkan tanggal transaksi (Tahun-Bulan-Hari): ")
+nama_pelanggan = ""
+tanggal = ""
+nama_barang = ""
+total_harga = 0
 
+def tambahkan_transaksi():
+    global nama_pelanggan, tanggal, nama_barang, total_harga
+    tanggal = input("Masukkan tanggal transaksi (Tahun-Bulan-Hari): ")
+    nama_pelanggan = str(input("Masukkan nama pelanggan : "))
     pesanan = []  # Membuat list untuk menyimpan pesanan dalam satu transaksi
 
     while True:
@@ -65,6 +71,19 @@ def tambahkan_transaksi():
 
         print("Ringkasan Pesanan:")
         print(f"{nama_barang} (Rp {total_harga})")
+
+        pilihan = str(input("ingin mencetak struk? (ya/tidak)"))
+        if pilihan == ya:
+            print("=====Geprek Barokah=====")
+            print("="*10, "Geprek Barokah", "="*10)
+            print("Nama: ", nama_pelanggan)
+            print("Tanggal: ", tanggal)
+            print("Pesanan: ", nama_barang)
+            print("Total Harga: Rp", total_harga)
+            print("Terima Kasih, Jangan Lupa Mampir Kembali !")
+            print("="*40)
+        else:
+            continue 
 
         # Menyimpan transaksi dalam DataFrame
         transaksi = pd.DataFrame({'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
