@@ -74,7 +74,6 @@ def tambahkan_transaksi():
 
         pilihan = str(input("ingin mencetak struk? (ya/tidak)"))
         if pilihan == "ya":
-            print("=====Geprek Barokah=====")
             print("="*10, "Geprek Barokah", "="*10)
             print("Nama: ", nama_pelanggan)
             print("Tanggal: ", tanggal)
