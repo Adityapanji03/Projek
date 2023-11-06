@@ -82,7 +82,7 @@ def tambahkan_transaksi():
             print("Total Harga: Rp", total_harga)
             print("Terima Kasih, Jangan Lupa Mampir Kembali !")
             print("="*40)
-        elif == "tidak":
+        elif pilihan == "tidak":
             print("struk tidak dicetak")
 
         # Menyimpan transaksi dalam DataFrame
