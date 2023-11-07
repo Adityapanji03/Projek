@@ -18,7 +18,7 @@ total_harga = 0
 def tambahkan_transaksi():
     global nama_pelanggan, tanggal, nama_barang, total_harga
     tanggal = input("Masukkan tanggal transaksi (Tahun-Bulan-Hari): ")
-    nama_pelanggan = str(input("Masukkan nama pelanggan : "))
+    nama_pelanggan = input("Masukkan nama pelanggan : ")
     pesanan = []  # Membuat list untuk menyimpan pesanan dalam satu transaksi
 
     while True:
@@ -70,22 +70,37 @@ def tambahkan_transaksi():
                 total_harga += harga_es_jeruk
 
         print("Ringkasan Pesanan:")
-        print(f"{nama_barang} (Rp {total_harga})")
+        if total_harga == 50000:
+            total_harga1 = total_harga * 0.1 
+            total_sekarang = total_harga - total_harga1
+            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+        elif total_harga >= 70000:
+            total_harga1 = total_harga * 0.15
+            total_sekarang = total_harga - total_harga1
+            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+        elif total_harga >= 200000:
+            total_harga1 = total_harga * 0.2
+            total_sekarang = total_harga - total_harga1
+            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+        else:
+            total_sekarang = total_harga
+            print(f"Total Pesanan yaitu Rp {total_sekarang}")
 
-        pilihan = str(input("ingin mencetak struk? (ya/tidak)"))
+        pilihan = input("Ingin mencetak struk? (ya/tidak)")
         if pilihan == "ya":
+            print("=====Geprek Barokah=====")
             print("="*10, "Geprek Barokah", "="*10)
             print("Nama: ", nama_pelanggan)
             print("Tanggal: ", tanggal)
             print("Pesanan: ", nama_barang)
-            print("Total Harga: Rp", total_harga)
+            print("Total Harga: Rp", total_sekarang)
             print("Terima Kasih, Jangan Lupa Mampir Kembali !")
             print("="*40)
         elif pilihan == "tidak":
-            print("struk tidak dicetak")
+            print("Struk tidak dicetak")
 
         # Menyimpan transaksi dalam DataFrame
-        transaksi = pd.DataFrame({'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
+        transaksi = pd.DataFrame({'Nama': [nama_pelanggan], 'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
 
         if not os.path.exists(namaFile):
             transaksi.to_csv(namaFile, index=False)
@@ -163,7 +178,7 @@ def main():
     stok_ayam = int(input("Masukkan stok awal Ayam Geprek: "))
     
     if not os.path.exists(namaFile):
-        header = ['Tanggal', 'Nama Barang', 'Harga per Barang']
+        header = ['Nama','Tanggal', 'Nama Barang', 'Harga per Barang']
         pd.DataFrame(columns=header).to_csv(namaFile, index=False)
 
     while True:
