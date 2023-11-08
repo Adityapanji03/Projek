@@ -142,7 +142,7 @@ def tambahkan_transaksi():
             print("Struk tidak dicetak")
 
         # Menyimpan transaksi dalam DataFrame
-        transaksi = pd.DataFrame({'Nama': [nama_pelanggan], 'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
+        transaksi = pd.DataFrame({'Nama': [nama_pelanggan], 'Tipe Pesanan': [tipe_pesanan], 'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
 
         if not os.path.exists(namaFile):
             transaksi.to_csv(namaFile, index=False)
@@ -243,18 +243,13 @@ def hapus_transaksi():
         elif pilihan == 'ya':
             print("Tidak ada histori pembatalan pesanan.")
 
-
-
-
-
 # Fungsi utama
-
 def main():
     global stok_ayam
     stok_ayam = int(input("Masukkan stok awal Ayam Geprek: "))
     
     if not os.path.exists(namaFile):
-        header = ['Nama','Tanggal', 'Nama Barang', 'Total Harga']
+        header = ['Nama', 'Tipe Pesanan','Tanggal', 'Nama Barang', 'Total Harga']
         pd.DataFrame(columns=header).to_csv(namaFile, index=False)
 
     while True:
