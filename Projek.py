@@ -35,22 +35,22 @@ def tambahkan_transaksi():
     print("6. Online")
     print()
     input_tipe_pesanan = input('Masukkan Tipe pesanan: ')
-    if tipe_pesanan == '1':
+    if  input_tipe_pesanan == '1':
         print("pesanan Offline.")
         tipe_pesanan = "Offline"
-    elif tipe_pesanan == '2':
+    elif input_tipe_pesanan == '2':
         print("pesanan Gofood.")
         tipe_pesanan = "Gofood"
-    elif tipe_pesanan == '3':
+    elif input_tipe_pesanan == '3':
         print("pesanan Shopeefood.")
         tipe_pesanan = "Shopeefood"
-    elif tipe_pesanan == '4':
+    elif input_tipe_pesanan == '4':
         print("pesanan Grab.")
         tipe_pesanan = "Grab"
-    elif tipe_pesanan == '5':
+    elif input_tipe_pesanan == '5':
         print("pesanan Maxim.")
         tipe_pesanan = "Maxim"
-    elif tipe_pesanan == '6':
+    elif input_tipe_pesanan == '6':
         print("pesanan Online.")
         tipe_pesanan = "Online"
     else:
@@ -61,7 +61,7 @@ def tambahkan_transaksi():
     print("1. Tunai")
     print("2. Qris")
     print()
-    input_pembayaran = Input("Masukkan pilihan pembayaran:")
+    input_pembayaran = input("Masukkan pilihan pembayaran:")
     pesanan = [] 
 
     while True:
