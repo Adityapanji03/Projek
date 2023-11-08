@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from datetime import datetime
 
 # Nama file CSV untuk menyimpan data transaksi
 namaFile = "transaksi_kasir_ayam_geprek.csv"
@@ -11,15 +12,57 @@ harga_es_teh = 3000
 harga_es_jeruk = 4000
 
 nama_pelanggan = ""
+tipe_pesanan = ""
 tanggal = ""
 nama_barang = ""
 total_harga = 0
+pembayaran = ""
+
+data_yang_dihapus = []
 
 def tambahkan_transaksi():
     global nama_pelanggan, tanggal, nama_barang, total_harga
-    tanggal = input("Masukkan tanggal transaksi (Tahun-Bulan-Hari): ")
+    # Menggunakan tanggal saat ini
+    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nama_pelanggan = input("Masukkan nama pelanggan : ")
-    pesanan = []  # Membuat list untuk menyimpan pesanan dalam satu transaksi
+    print()
+    print("Pilih tipe:")
+    print("1. Offline")
+    print("2. Gofood")
+    print("3. Shopeefood")
+    print("4. Grab")
+    print("5. Maxim")
+    print("6. Online")
+    print()
+    input_tipe_pesanan = input('Masukkan Tipe pesanan: ')
+    if tipe_pesanan == '1':
+        print("pesanan Offline.")
+        tipe_pesanan = "Offline"
+    elif tipe_pesanan == '2':
+        print("pesanan Gofood.")
+        tipe_pesanan = "Gofood"
+    elif tipe_pesanan == '3':
+        print("pesanan Shopeefood.")
+        tipe_pesanan = "Shopeefood"
+    elif tipe_pesanan == '4':
+        print("pesanan Grab.")
+        tipe_pesanan = "Grab"
+    elif tipe_pesanan == '5':
+        print("pesanan Maxim.")
+        tipe_pesanan = "Maxim"
+    elif tipe_pesanan == '6':
+        print("pesanan Online.")
+        tipe_pesanan = "Online"
+    else:
+        print("Tipe pesanan tidak valid. Silakan pilih angka dari 1 hingga 6.")
+
+    print()
+    print("Pilih pembayaran:")
+    print("1. Tunai")
+    print("2. Qris")
+    print()
+    input_pembayaran = Input("Masukkan pilihan pembayaran:")
+    pesanan = [] 
 
     while True:
         # Menampilkan pilihan menu
@@ -73,22 +116,21 @@ def tambahkan_transaksi():
         if total_harga == 50000:
             total_harga1 = total_harga * 0.1 
             total_sekarang = total_harga - total_harga1
-            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
         elif total_harga >= 70000:
             total_harga1 = total_harga * 0.15
             total_sekarang = total_harga - total_harga1
-            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
         elif total_harga >= 200000:
             total_harga1 = total_harga * 0.2
             total_sekarang = total_harga - total_harga1
-            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
         else:
             total_sekarang = total_harga
-            print(f"Total Pesanan yaitu Rp {total_sekarang}")
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
 
         pilihan = input("Ingin mencetak struk? (ya/tidak)")
         if pilihan == "ya":
-            print("=====Geprek Barokah=====")
             print("="*10, "Geprek Barokah", "="*10)
             print("Nama: ", nama_pelanggan)
             print("Tanggal: ", tanggal)
@@ -150,7 +192,10 @@ def laporan_keuangan(namaFile):
         print("Tidak ada data transaksi yang tersimpan.")
         
 
+histori_file = "pesanan_dihapus.csv"  # Definisikan variabel di luar fungsi
+
 def hapus_transaksi():
+    global data_yang_dihapus  # Tandai variabel sebagai global agar bisa diakses dan diubah di dalam fungsi
 
     if os.path.exists(namaFile):
         data = pd.read_csv(namaFile)
@@ -163,6 +208,13 @@ def hapus_transaksi():
             nomor_transaksi = int(input("Masukkan nomor transaksi yang ingin dihapus:"))
 
             if 1 <= nomor_transaksi <= len(data):
+                # Ambil pesanan yang akan dihapus
+                pesanan_dihapus = data.loc[nomor_transaksi]
+
+                # Tambahkan pesanan yang dihapus ke dalam list data_yang_dihapus
+                data_yang_dihapus.append(pesanan_dihapus)
+
+                # Hapus pesanan dari file asli
                 data = data.drop(nomor_transaksi)
                 data.reset_index(drop=True, inplace=True)
                 data.to_csv(namaFile, index=False)
@@ -171,6 +223,30 @@ def hapus_transaksi():
                 print("Nomor transaksi tidak valid.")
         else:
             print("Tidak ada data transaksi yang tersimpan.")
+        
+        pilihan = input("Ingin melihat histori pembatalan pesanan? (ya/tidak): ")
+        if pilihan == 'ya' and data_yang_dihapus:
+            # Simpan data yang dihapus dalam file CSV baru ("pesanan_dihapus.csv")
+            histori_file = "pesanan_dihapus.csv"
+            histori = pd.DataFrame(data_yang_dihapus)
+            if not os.path.exists(histori_file):
+                header = ['Nama', 'Tanggal', 'Nama Barang', 'Total Harga']
+                histori.to_csv(histori_file, index=False)
+            else:
+                histori.to_csv(histori_file, mode='a', header=False, index=False)
+
+            # Tampilkan data yang dihapus dalam sebuah DataFrame
+            data_histori = pd.read_csv(histori_file)
+            data_histori.index += 1  # Ubah indeks mulai dari 1
+            print("Histori Pembatalan Pesanan:")
+            print(data_histori)
+        elif pilihan == 'ya':
+            print("Tidak ada histori pembatalan pesanan.")
+
+
+
+
+
 # Fungsi utama
 
 def main():
@@ -178,7 +254,7 @@ def main():
     stok_ayam = int(input("Masukkan stok awal Ayam Geprek: "))
     
     if not os.path.exists(namaFile):
-        header = ['Nama','Tanggal', 'Nama Barang', 'Harga per Barang']
+        header = ['Nama','Tanggal', 'Nama Barang', 'Total Harga']
         pd.DataFrame(columns=header).to_csv(namaFile, index=False)
 
     while True:
