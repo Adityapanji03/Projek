@@ -1,4 +1,5 @@
 import os
+import csv
 import pandas as pd
 from datetime import datetime
 
@@ -56,12 +57,6 @@ def tambahkan_transaksi():
     else:
         print("Tipe pesanan tidak valid. Silakan pilih angka dari 1 hingga 6.")
 
-    print()
-    print("Pilih pembayaran:")
-    print("1. Tunai")
-    print("2. Qris")
-    print()
-    input_pembayaran = input("Masukkan pilihan pembayaran:")
     pesanan = [] 
 
     while True:
@@ -112,6 +107,22 @@ def tambahkan_transaksi():
             elif barang == "Es Jeruk":
                 total_harga += harga_es_jeruk
 
+        print()
+        print("Pilih pembayaran:")
+        print("1. Tunai")
+        print("2. Qris")
+        print()
+        input_pembayaran = input("Masukkan pilihan pembayaran:")
+        if  input_pembayaran == '1':
+            print("pesanan Tunai.")
+            pembayaran = "Tunai"
+        elif input_tipe_pesanan == '2':
+            print("pembayaran Qris.")
+            pembayaran = "Qris"
+        else:
+            print("Input pembayaran tidak valid. Silakan pilih angka dari 1 hingga 2.")
+        
+
         print("Ringkasan Pesanan:")
         if total_harga == 50000:
             total_harga1 = total_harga * 0.1 
@@ -132,10 +143,12 @@ def tambahkan_transaksi():
         pilihan = input("Ingin mencetak struk? (ya/tidak)")
         if pilihan == "ya":
             print("="*10, "Geprek Barokah", "="*10)
-            print("Nama: ", nama_pelanggan)
-            print("Tanggal: ", tanggal)
-            print("Pesanan: ", nama_barang)
-            print("Total Harga: Rp", total_sekarang)
+            print("Nama        : ", nama_pelanggan)
+            print("Tipe pesanan: ", tipe_pesanan)
+            print("Tanggal     : ", tanggal)
+            print("Pesanan     : ", nama_barang)
+            print("Total Harga :  Rp", total_sekarang)
+            print("Pembayaran  : ", pembayaran)
             print("Terima Kasih, Jangan Lupa Mampir Kembali !")
             print("="*40)
         elif pilihan == "tidak":
