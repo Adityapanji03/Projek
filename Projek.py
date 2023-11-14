@@ -3,10 +3,14 @@ import csv
 import pandas as pd
 from datetime import datetime
 
+# Nama file CSV untuk menyimpan data transaksi
 namaFile = "transaksi_kasir_ayam_geprek.csv"
-menu_pesanan = "menu_geprek.csv"
 stok_ayam = 0
 ayam_terjual = 0
+harga_ayam_geprek = 15000
+harga_ayam_bakar = 16000
+harga_es_teh = 3000
+harga_es_jeruk = 4000
 
 nama_pelanggan = ""
 tipe_pesanan = ""
@@ -16,22 +20,14 @@ total_harga = 0
 pembayaran = ""
 
 data_yang_dihapus = []
-menu_kosong = []
-
-import pandas as pd
-import csv
-from datetime import datetime
 
 def tambahkan_transaksi():
-    global nama_pelanggan, tipe_pesanan, tanggal, nama_barang, total_harga, pembayaran
-
+    global nama_pelanggan, tanggal, nama_barang, total_harga
     # Menggunakan tanggal saat ini
     tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nama_pelanggan = input("Masukkan nama pelanggan : ")
-    
-    menu_data = pd.read_csv(menu_pesanan)  # Baca data dari file CSV
-
-    print("Pilih tipe pesanan:")
+    print()
+    print("Pilih tipe:")
     print("1. Offline")
     print("2. Gofood")
     print("3. Shopeefood")
@@ -61,31 +57,55 @@ def tambahkan_transaksi():
     else:
         print("Tipe pesanan tidak valid. Silakan pilih angka dari 1 hingga 6.")
 
-    pesanan = []
+    pesanan = [] 
+
     while True:
-      if os.path.exists(menu_pesanan):
-        data = pd.read_csv(menu_pesanan)
-        data.index += 1  # Ubah indeks mulai dari 1
+        # Menampilkan pilihan menu
+        print("Pilih menu:")
+        print("1. Ayam Geprek (Rp 15000)")
+        print("2. Ayam Bakar (Rp 16000)")
+        print("3. Es Teh (Rp 3000)")
+        print("4. Es Jeruk (Rp 4000)")
+        print("5. Selesai")
 
-        if not data.empty:
-            print("===Daftar Menu===")
-            print(data)
+        pilihan_menu = input("Masukkan nomor menu (1/2/3/4) atau selesai (5) untuk menyelesaikan pesanan: ")
 
-            nomor_transaksi = int(input("Masukkan nomor menu yang dipesan:"))
+        if pilihan_menu == "5":
+            break
 
-            if 1 <= nomor_transaksi <= len(data):
-                # Ambil pesanan yang akan dihapus
-                menu_pesan = data.loc[nomor_transaksi]
+        # Pisahkan nomor menu yang diinput
+        nomor_menu = pilihan_menu.split()
 
-                # Tambahkan pesanan yang dihapus ke dalam list data_yang_dihapus
-                menu_kosong.append(menu_pesan)
+        for nomor in nomor_menu:
+            if nomor == '1':
+                pesanan.append("Ayam Geprek")
+            elif nomor == '2':
+                pesanan.append("Ayam Bakar")
+            elif nomor == '3':
+                pesanan.append("Es Teh")
+            elif nomor == '4':
+                pesanan.append("Es Jeruk")
+            else:
+                print("Nomor menu tidak valid:", nomor)
+                continue  # Lewati item yang tidak valid
 
     if pesanan:
+        # Gabungkan semua pesanan dalam satu string dengan koma sebagai pemisah
         nama_barang = ', '.join(pesanan)
+        # Hitung jumlah barang dalam pesanan
         jumlah_barang = len(pesanan)
 
         # Hitung total harga pesanan
-        total_harga = sum(menu_data.loc[menu_data['Nama'] == menu, 'Harga'].values[0] for menu in pesanan)
+        total_harga = 0
+        for barang in pesanan:
+            if barang == "Ayam Geprek":
+                total_harga += harga_ayam_geprek
+            elif barang == "Ayam Bakar":
+                total_harga += harga_ayam_bakar
+            elif barang == "Es Teh":
+                total_harga += harga_es_teh
+            elif barang == "Es Jeruk":
+                total_harga += harga_es_jeruk
 
         print()
         print("Pilih pembayaran:")
@@ -96,12 +116,62 @@ def tambahkan_transaksi():
         if  input_pembayaran == '1':
             print("pesanan Tunai.")
             pembayaran = "Tunai"
-        elif input_pembayaran == '2':
+        elif input_tipe_pesanan == '2':
             print("pembayaran Qris.")
             pembayaran = "Qris"
         else:
             print("Input pembayaran tidak valid. Silakan pilih angka dari 1 hingga 2.")
+        
 
+        print("Ringkasan Pesanan:")
+        if total_harga == 50000:
+            total_harga1 = total_harga * 0.1 
+            total_sekarang = total_harga - total_harga1
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
+        elif total_harga >= 70000:
+            total_harga1 = total_harga * 0.15
+            total_sekarang = total_harga - total_harga1
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
+        elif total_harga >= 200000:
+            total_harga1 = total_harga * 0.2
+            total_sekarang = total_harga - total_harga1
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
+        else:
+            total_sekarang = total_harga
+            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
+
+        pilihan = input("Ingin mencetak struk? (ya/tidak)")
+        if pilihan == "ya":
+            print("="*10, "Geprek Barokah", "="*10)
+            print("Nama        : ", nama_pelanggan)
+            print("Tipe pesanan: ", tipe_pesanan)
+            print("Tanggal     : ", tanggal)
+            print("Pesanan     : ", nama_barang)
+            print("Total Harga :  Rp", total_sekarang)
+            print("Pembayaran  : ", pembayaran)
+            print("Terima Kasih, Jangan Lupa Mampir Kembali !")
+            print("="*40)
+        elif pilihan == "tidak":
+            print("Struk tidak dicetak")
+
+        # Menyimpan transaksi dalam DataFrame
+        transaksi = pd.DataFrame({'Nama': [nama_pelanggan], 'Tipe Pesanan': [tipe_pesanan], 'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
+
+        if not os.path.exists(namaFile):
+            transaksi.to_csv(namaFile, index=False)
+        else:
+            transaksi.to_csv(namaFile, mode='a', header=False, index=False)
+
+        print()
+        print("Transaksi berhasil ditambahkan!")
+        print()
+
+        global stok_ayam
+        global ayam_terjual  # Tambahkan jumlah ayam terjual
+        stok_ayam -= jumlah_barang
+        ayam_terjual += jumlah_barang  # Tambahkan jumlah ayam terjual
+    else:
+        print("Tidak ada pesanan yang ditambahkan.")
         
 def menampilkan_transaksi():
     if os.path.exists(namaFile):
