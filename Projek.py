@@ -2,220 +2,323 @@ import os
 import csv
 import pandas as pd
 from datetime import datetime
+import time
+import random
+from tabulate import tabulate
 
-# Nama file CSV untuk menyimpan data transaksi
-namaFile = "transaksi_kasir_ayam_geprek.csv"
-stok_ayam = 0
+namaFile = "transaxksi_kasir_ayam_geprek.csv"
+menu_file = "menu_geprek.csv"
+member_csv = 'member_data.csv'
+
 ayam_terjual = 0
-harga_ayam_geprek = 15000
-harga_ayam_bakar = 16000
-harga_es_teh = 3000
-harga_es_jeruk = 4000
-
 nama_pelanggan = ""
 tipe_pesanan = ""
 tanggal = ""
 nama_barang = ""
 total_harga = 0
 pembayaran = ""
+username = ""
 
 data_yang_dihapus = []
+menu_kosong = []
+
+def cetak_struk(namaFile):
+    os.system("cls")
+    try:
+        transaksi_data = pd.read_csv(namaFile)
+        if not transaksi_data.empty:
+            latest_transaksi = transaksi_data.iloc[-1]
+            
+            # Meminta input uang pembeli
+            uang_pembeli = float(input("Masukkan jumlah uang pembeli: Rp "))
+            os.system('cls')
+            # Menghitung kembalian
+            kembalian = uang_pembeli - latest_transaksi['Total Harga']
+
+            # Menampilkan struk
+            print("\n=== Struk Pembelian ===")
+            print(f"Tanggal       : {latest_transaksi['Tanggal']}")
+            print(f"Nama Pelanggan: {latest_transaksi['Nama']}")
+            print(f"Tipe Pesanan  : {latest_transaksi['Tipe Pesanan']}")
+            print(f"Nama Barang   : {latest_transaksi['Nama Barang']}")
+            print(f"Total Harga   : Rp {latest_transaksi['Total Harga']}")
+
+            # Menampilkan diskon member jika member
+            if 'Diskon Member' in latest_transaksi and latest_transaksi['Diskon Member'] > 0:
+                print(f"Diskon Member : {latest_transaksi['Diskon Member'] * 100}%")
+
+            print(f"Uang Pembeli  : Rp {uang_pembeli}")
+            print(f"Kembalian     : Rp {kembalian}")
+            print(f"Pembayaran    : {latest_transaksi['Pembayaran']}")
+            print(f"Nama Kasir    : {latest_transaksi['Nama Kasir']}")
+            print("======================\n")
+        else:
+            print("Data transaksi masih kosong. Silakan tambahkan transaksi terlebih dahulu.\n")
+    except pd.errors.EmptyDataError:
+        print("Data transaksi masih kosong. Silakan tambahkan transaksi terlebih dahulu.\n")
+
+        
+def load_menu_data():
+    if os.path.exists(menu_file):
+        data_menu = pd.read_csv(menu_file)
+        data_menu.index += 1
+    else:
+        data_menu = pd.DataFrame(columns=['Nama Menu', 'Harga'])
+
+    return data_menu
+
+def display_menu(data_menu):
+    if not data_menu.empty:
+        # Use tabulate to display the menu in a tabular format
+        data_menu.index += 1
+        print(tabulate(data_menu, headers='keys', tablefmt='grid'))
+    else:
+        print("Menu kosong. Silakan tambahkan menu terlebih dahulu.")
 
 def tambahkan_transaksi():
-    global nama_pelanggan, tanggal, nama_barang, total_harga
-    # Menggunakan tanggal saat ini
-    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    nama_pelanggan = input("Masukkan nama pelanggan : ")
-    print()
-    print("Pilih tipe:")
-    print("1. Offline")
-    print("2. Gofood")
-    print("3. Shopeefood")
-    print("4. Grab")
-    print("5. Maxim")
-    print("6. Online")
-    print()
-    input_tipe_pesanan = input('Masukkan Tipe pesanan: ')
-    if  input_tipe_pesanan == '1':
-        print("pesanan Offline.")
-        tipe_pesanan = "Offline"
-    elif input_tipe_pesanan == '2':
-        print("pesanan Gofood.")
-        tipe_pesanan = "Gofood"
-    elif input_tipe_pesanan == '3':
-        print("pesanan Shopeefood.")
-        tipe_pesanan = "Shopeefood"
-    elif input_tipe_pesanan == '4':
-        print("pesanan Grab.")
-        tipe_pesanan = "Grab"
-    elif input_tipe_pesanan == '5':
-        print("pesanan Maxim.")
-        tipe_pesanan = "Maxim"
-    elif input_tipe_pesanan == '6':
-        print("pesanan Online.")
-        tipe_pesanan = "Online"
-    else:
-        print("Tipe pesanan tidak valid. Silakan pilih angka dari 1 hingga 6.")
+    os.system("cls")
+    global nama_pelanggan, tipe_pesanan, tanggal, nama_barang, total_harga_pesanan, pembayaran, username
 
-    pesanan = [] 
+    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    nama_pelanggan = input("Masukkan nama pelanggan: ")
 
     while True:
-        # Menampilkan pilihan menu
-        print("Pilih menu:")
-        print("1. Ayam Geprek (Rp 15000)")
-        print("2. Ayam Bakar (Rp 16000)")
-        print("3. Es Teh (Rp 3000)")
-        print("4. Es Jeruk (Rp 4000)")
-        print("5. Selesai")
+        os.system('cls')
+        print("Pilih tipe pesanan:")
+        print("1. Offline")
+        print("2. Gofood")
+        print("3. Shopeefood")
+        print("4. Grab")
+        print("5. Maxim")
+        print("6. Online")
+        print()
+        input_tipe_pesanan = input('Masukkan Tipe pesanan: ')
 
-        pilihan_menu = input("Masukkan nomor menu (1/2/3/4) atau selesai (5) untuk menyelesaikan pesanan: ")
+        if input_tipe_pesanan in ['1', '2', '3', '4', '5', '6']:
+            break
+        else:
+            print("Tipe pesanan tidak valid. Silakan pilih angka dari 1 hingga 6.")
 
-        if pilihan_menu == "5":
+    if input_tipe_pesanan == '1':
+        print("Pesanan Offline.")
+        tipe_pesanan = "Offline"
+    elif input_tipe_pesanan == '2':
+        print("Pesanan Gofood.")
+        tipe_pesanan = "Gofood"
+    elif input_tipe_pesanan == '3':
+        print("Pesanan Shopeefood.")
+        tipe_pesanan = "Shopeefood"
+    elif input_tipe_pesanan == '4':
+        print("Pesanan Grab.")
+        tipe_pesanan = "Grab"
+    elif input_tipe_pesanan == '5':
+        print("Pesanan Maxim.")
+        tipe_pesanan = "Maxim"
+    elif input_tipe_pesanan == '6':
+        print("Pesanan Online.")
+        tipe_pesanan = "Online"
+
+    os.system('cls')
+    data_menu = pd.read_csv(menu_file)
+    display_menu(data_menu)
+        
+    pesanan = []
+    total_harga_pesanan = 0
+    diskon = 0.0
+
+    # Display menu
+
+    
+    while True:
+        nomor_transaksi = input("Masukkan nomor menu yang dipesan (enter untuk selesai): ")
+
+        if not nomor_transaksi:
             break
 
-        # Pisahkan nomor menu yang diinput
-        nomor_menu = pilihan_menu.split()
+        try:
+            nomor_transaksi = int(nomor_transaksi)
+            if 1 <= nomor_transaksi <= len(data_menu):
+                menu_pesan = data_menu.loc[nomor_transaksi]  # Adjust index
+                pesanan.append(menu_pesan['Nama Menu'])
+                if nama_barang:  # Check if nama_barang is not empty
+                    nama_barang += ", "
+                nama_barang += menu_pesan['Nama Menu']  # Update nilai nama_barang
 
-        for nomor in nomor_menu:
-            if nomor == '1':
-                pesanan.append("Ayam Geprek")
-            elif nomor == '2':
-                pesanan.append("Ayam Bakar")
-            elif nomor == '3':
-                pesanan.append("Es Teh")
-            elif nomor == '4':
-                pesanan.append("Es Jeruk")
+                harga_menu = menu_pesan['Harga']
+                total_harga_pesanan += harga_menu
+                print(f"Menu {menu_pesan['Nama Menu']} dengan harga Rp {harga_menu} ditambahkan ke pesanan.")
             else:
-                print("Nomor menu tidak valid:", nomor)
-                continue  # Lewati item yang tidak valid
+                print("Nomor menu tidak valid. Silakan pilih nomor yang sesuai.")
+        except ValueError:
+            print("Masukkan nomor menu dalam bentuk angka.")
 
-    if pesanan:
-        # Gabungkan semua pesanan dalam satu string dengan koma sebagai pemisah
-        nama_barang = ', '.join(pesanan)
-        # Hitung jumlah barang dalam pesanan
-        jumlah_barang = len(pesanan)
-
-        # Hitung total harga pesanan
-        total_harga = 0
-        for barang in pesanan:
-            if barang == "Ayam Geprek":
-                total_harga += harga_ayam_geprek
-            elif barang == "Ayam Bakar":
-                total_harga += harga_ayam_bakar
-            elif barang == "Es Teh":
-                total_harga += harga_es_teh
-            elif barang == "Es Jeruk":
-                total_harga += harga_es_jeruk
-
+    while True:
+        os.system('cls')
         print()
         print("Pilih pembayaran:")
         print("1. Tunai")
         print("2. Qris")
         print()
         input_pembayaran = input("Masukkan pilihan pembayaran:")
-        if  input_pembayaran == '1':
-            print("pesanan Tunai.")
+        if input_pembayaran == '1':
+            print("Pembayaran Tunai.")
             pembayaran = "Tunai"
-        elif input_tipe_pesanan == '2':
-            print("pembayaran Qris.")
+            break
+        elif input_pembayaran == '2':
+            print("Pembayaran Qris.")
             pembayaran = "Qris"
+            break
         else:
             print("Input pembayaran tidak valid. Silakan pilih angka dari 1 hingga 2.")
+    
+    os.system("cls")
+    print("Ringkasan Pesanan : ")
+    print(f"Nama {nama_pelanggan}, Tipe Pesanan {tipe_pesanan}, Nama Menu {nama_barang}, Pembayaran {pembayaran}")
+
+    while True:
+        print()
+        print("Apakah pesanan sudah benar?:")
+        print("1. Ya")
+        print("2. Kembali ke menu menambah transaksi")
+        print()
+        lanjut = input("Masukkan pilihan:")
+        if lanjut == '1':
+            break
+        elif lanjut == '2':
+            tambahkan_transaksi()
+
+    while True:
+        os.system('cls')
+        member_input = input("Apakah pelanggan adalah member? (ya/tidak): ").lower()
+
+        while member_input not in ['ya', 'tidak']:
+             print("Input tidak valid. Silakan masukkan 'ya' atau 'tidak'.")
         
+        member_tidak = member_input == 'tidak'
+        if member_tidak:
+            break
 
-        print("Ringkasan Pesanan:")
-        if total_harga == 50000:
-            total_harga1 = total_harga * 0.1 
-            total_sekarang = total_harga - total_harga1
-            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
-        elif total_harga >= 70000:
-            total_harga1 = total_harga * 0.15
-            total_sekarang = total_harga - total_harga1
-            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
-        elif total_harga >= 200000:
-            total_harga1 = total_harga * 0.2
-            total_sekarang = total_harga - total_harga1
-            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
+        member = member_input == 'ya'
+
+        if member:
+            #while True:
+            kode_member = input("Masukkan Kode Member (Enter untuk melanjutkan): ")
+            member_info = pd.read_csv(member_csv)
+
+            if member_info['ID'].eq(kode_member).any():
+                print("Member ditemukan. Anda mendapatkan diskon 10%.")
+                diskon = 0.1
+                break
+            elif kode_member == '':
+                break
+            else:
+                print("Kode Member tidak valid. Silakan coba lagi.")
         else:
-            total_sekarang = total_harga
-            print(f"{nama_barang} Total Harga = Rp {total_sekarang}")
+            diskon = 0.0
 
-        pilihan = input("Ingin mencetak struk? (ya/tidak)")
-        if pilihan == "ya":
-            print("="*10, "Geprek Barokah", "="*10)
-            print("Nama        : ", nama_pelanggan)
-            print("Tipe pesanan: ", tipe_pesanan)
-            print("Tanggal     : ", tanggal)
-            print("Pesanan     : ", nama_barang)
-            print("Total Harga :  Rp", total_sekarang)
-            print("Pembayaran  : ", pembayaran)
-            print("Terima Kasih, Jangan Lupa Mampir Kembali !")
-            print("="*40)
-        elif pilihan == "tidak":
-            print("Struk tidak dicetak")
+    total_harga_pesanan *= (1 - diskon)
 
-        # Menyimpan transaksi dalam DataFrame
-        transaksi = pd.DataFrame({'Nama': [nama_pelanggan], 'Tipe Pesanan': [tipe_pesanan], 'Tanggal': [tanggal], 'Nama Barang': [nama_barang], 'Total Harga': [total_harga]})
+    transaksi = pd.DataFrame({
+        'Nama': [nama_pelanggan],
+        'Tipe Pesanan': [tipe_pesanan],
+        'Tanggal': [tanggal],
+        'Nama Barang': [nama_barang],
+        'Total Harga': [total_harga_pesanan],
+        'Pembayaran': [pembayaran],
+        'Nama Kasir': [username]
+    }, columns=['Nama', 'Tipe Pesanan', 'Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran', 'Nama Kasir'])
 
-        if not os.path.exists(namaFile):
-            transaksi.to_csv(namaFile, index=False)
-        else:
-            transaksi.to_csv(namaFile, mode='a', header=False, index=False)
-
-        print()
-        print("Transaksi berhasil ditambahkan!")
-        print()
-
-        global stok_ayam
-        global ayam_terjual  # Tambahkan jumlah ayam terjual
-        stok_ayam -= jumlah_barang
-        ayam_terjual += jumlah_barang  # Tambahkan jumlah ayam terjual
+    if not os.path.exists(namaFile):
+        header = ['Nama', 'Tipe Pesanan', 'Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran', "Nama Kasir"]
+        transaksi.to_csv(namaFile, index=False, header=header)
     else:
-        print("Tidak ada pesanan yang ditambahkan.")
-        
+        transaksi.to_csv(namaFile, mode='a', header=False, index=False)
+
+    os.system('cls')
+    pilihan = input("Ingin mencetak struk? (ya/tidak)")
+    if pilihan == "ya":
+        cetak_struk(namaFile)
+    elif pilihan == "tidak":
+        print("Struk tidak dicetak")
+
+    print()
+    print("Transaksi berhasil ditambahkan!")
+    print()
+
+def cek_menu():
+  os.system("cls")
+  data_menu = load_menu_data()
+
+  
+  print("===Daftar Menu===")
+  print(data_menu)
+
+def cari_transaksi_berdasarkan_nama():
+    if os.path.exists(namaFile):
+        try:
+            data = pd.read_csv(namaFile)
+            data.index += 1  # Ubah indeks mulai dari 1
+
+            nama_pembeli_cari = str(input("Masukkan nama pembeli yang ingin dicari: ")).strip()
+
+            # Filter data berdasarkan nama pembeli
+            hasil_pencarian = data[data['Nama'].str.contains(nama_pembeli_cari, case=False, na=False)]
+
+            if not hasil_pencarian.empty:
+                print(f"Hasil pencarian untuk nama pembeli '{nama_pembeli_cari}':")
+                print(hasil_pencarian)
+            else:
+                print(f"Tidak ditemukan transaksi untuk nama pembeli '{nama_pembeli_cari}'.")
+        except pd.errors.EmptyDataError:
+            print("Data transaksi masih kosong. Silakan tambahkan transaksi terlebih dahulu.")
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        print("Tidak ada data transaksi yang tersimpan.")
+
+
 def menampilkan_transaksi():
+    os.system('cls')
     if os.path.exists(namaFile):
         data = pd.read_csv(namaFile)
-        data.index += 1  # Ubah indeks mulai dari 1
+        data.index += 1
         print(data)
     else:
         print("Tidak ada data transaksi yang tersimpan.")
-
-def menampilkan_menu():
-    if os.path.exists(menu_pesanan):
-        data = pd.read_csv(menu_pesanan)
-        data.index += 1  # Ubah indeks mulai dari 1
-        print(data)
-    else:
-        print("Tidak ada data transaksi yang tersimpan.")
-
-# Fungsi untuk melihat stok ayam
-def lihat_stok_ayam():
-    print(f"Stok Ayam Geprek: {stok_ayam} ayam")
-    print(f"Ayam Terjual Sementara: {ayam_terjual} ayam")
+       
+    print()
+    cari = input("ingin mencari data transaksi? (y/n):")
+    os.system('cls')
+    if cari == 'y':
+        os.system('cls')
+        cari_transaksi_berdasarkan_nama()
+     
 
 # Fungsi untuk mencetak laporan keuangan
 def laporan_keuangan(namaFile):
+    os.system("cls")
     if os.path.exists(namaFile):
         data = pd.read_csv(namaFile)
         if not data.empty:
-            # Menghitung total menu terjual tanpa menggunakan sum
-            total_menu_terjual = data['Nama Barang'].str.contains("Ayam|Es").sum()
+            # Menghitung total pendapatan berdasarkan kolom Total Harga
+            total_pendapatan = data['Total Harga'].sum()
 
+            # Menghitung jumlah pesanan
+            jumlah_pesanan = data.shape[0]
             print("===== Laporan Keuangan =====")
-            print(f"Total Menu Terjual: {total_menu_terjual}")
-            print(f"Total Ayam Tersisa: {stok_ayam} ayam")
-            print(f"Total Pendapatan: RP. {total_menu_terjual * (harga_ayam_geprek + harga_ayam_bakar + harga_es_teh + harga_es_jeruk)}")
+            print(f"Total Pendapatan: Rp {total_pendapatan}")
+            print(f"Jumlah Pesanan: {jumlah_pesanan}")
             print("==========================")
         else:
             print("Tidak ada data transaksi yang tersimpan.")
     else:
         print("Tidak ada data transaksi yang tersimpan.")
-        
-
+       
+os.system('cls')
 histori_file = "pesanan_dihapus.csv"  # Definisikan variabel di luar fungsi
 
 def hapus_transaksi():
+    os.system("cls")
     global data_yang_dihapus  # Tandai variabel sebagai global agar bisa diakses dan diubah di dalam fungsi
 
     if os.path.exists(namaFile):
@@ -226,22 +329,31 @@ def hapus_transaksi():
             print("Daftar Transaksi:")
             print(data)
 
-            nomor_transaksi = int(input("Masukkan nomor transaksi yang ingin dihapus:"))
+            nomor_transaksi = input("Masukkan nomor transaksi yang ingin dihapus (Enter untuk melihat histori pesanan yang dihapus):")
 
-            if 1 <= nomor_transaksi <= len(data):
-                # Ambil pesanan yang akan dihapus
-                pesanan_dihapus = data.loc[nomor_transaksi]
-
-                # Tambahkan pesanan yang dihapus ke dalam list data_yang_dihapus
-                data_yang_dihapus.append(pesanan_dihapus)
-
-                # Hapus pesanan dari file asli
-                data = data.drop(nomor_transaksi)
-                data.reset_index(drop=True, inplace=True)
-                data.to_csv(namaFile, index=False)
-                print("Transaksi telah dihapus.")
+            if nomor_transaksi == '':
+                print()
+                print("Anda tidak menghapus data transaksi")
             else:
-                print("Nomor transaksi tidak valid.")
+                try:
+                    nomor_transaksi = int(nomor_transaksi)
+
+                    if 1 <= nomor_transaksi <= len(data):
+                        # Ambil pesanan yang akan dihapus
+                        pesanan_dihapus = data.loc[nomor_transaksi]
+
+                        # Tambahkan pesanan yang dihapus ke dalam list data_yang_dihapus
+                        data_yang_dihapus.append(pesanan_dihapus)
+
+                        # Hapus pesanan dari file asli
+                        data = data.drop(nomor_transaksi)
+                        data.reset_index(drop=True, inplace=True)
+                        data.to_csv(namaFile, index=False)
+                        print("Transaksi telah dihapus.")
+                    else:
+                        print("Nomor transaksi tidak valid.")
+                except ValueError:
+                    print("Masukkan nomor transaksi dalam bentuk angka.")
         else:
             print("Tidak ada data transaksi yang tersimpan.")
         
@@ -251,7 +363,7 @@ def hapus_transaksi():
             histori_file = "pesanan_dihapus.csv"
             histori = pd.DataFrame(data_yang_dihapus)
             if not os.path.exists(histori_file):
-                header = ['Nama', 'Tipe Pesanan', 'Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran']
+                header = ['Nama', 'Tipe Pesanan', 'Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran', 'Nama Kasir']
                 histori.to_csv(histori_file, index=False)
             else:
                 histori.to_csv(histori_file, mode='a', header=False, index=False)
@@ -264,69 +376,197 @@ def hapus_transaksi():
         elif pilihan == 'ya':
             print("Tidak ada histori pembatalan pesanan.")
 
-def cetak_struk(namaFile):
-    if os.path.exists(namaFile):
-        data = pd.read_csv(namaFile)
-        data.index += 1  # ngubah indeks mulai dari 1
+def generate_member_id(nama, id_member):
+    while True:
+        inisial = ''.join(word[0] for word in nama.upper().split())
+        kode_unik = inisial + str(random.randint(100, 999))
+        if kode_unik not in id_member:
+            return kode_unik
 
-        if not data.empty:
-            print("Daftar Transaksi:")
-            print(data)
+def register_member():
+    os.system('cls')
+    try:
+        member_df = pd.read_csv(member_csv)
+    except FileNotFoundError:
+        member_df = pd.DataFrame(columns=['Nama', 'ID', 'Jenis Kelamin', 'Umur', 'Pekerjaan', 'Alamat'])
 
-        input_struk = input("Masukkan baris yang ingin dicetak dalam struk :")
+    while True:
+        print("Menu Pendaftaran Member")
+        nama_member = input("Masukkan nama member: ")
+
+        if member_df['Nama'].str.lower().eq(nama_member.lower()).any():
+            print("Nama sudah terdaftar. Silakan masukkan nama lain.")
+        else:
+            break
+    while True:
+      os.system('cls')
+      id_member = set(member_df['ID'])
+      new_member_id = generate_member_id(nama_member, id_member)
+
+      jenis_kelamin = input("Masukkan jenis kelamin (L/P): ")
+      umur = input("Masukkan umur: ")
+      pekerjaan = input("Masukkan pekerjaan: ")
+      alamat = input("Masukkan alamat: ")
+      
+      print(f"Nama {nama_member}, Gender {jenis_kelamin}, Umur {umur}, Pekerjaan {pekerjaan}, Alamat {alamat}")
+      print("Apakah informasi member sudah  benar?")
+      print()
+      print("1. Ya")
+      print("2. Kembali ke menu daftar member")
+      print()
+      lanjut = input("Masukkan pilihan:")
+      if lanjut == '1':
+        break
+      elif lanjut == '2':
+        register_member()
+    
+    
+
+    new_member_df = pd.DataFrame({
+        'Nama': [nama_member],
+        'ID': [new_member_id],
+        'Jenis Kelamin': [jenis_kelamin],
+        'Umur': [umur],
+        'Pekerjaan': [pekerjaan],
+        'Alamat': [alamat]
+    })
+
+    member_df = pd.concat([member_df, new_member_df], ignore_index=True)
+
+    member_df.to_csv(member_csv, index=False)
+
+    print(f"Registrasi berhasil! Member ID Anda adalah: {new_member_id}")
+    print()
+
+def check_member():
+    print("Menu Cek Member")
+    member_id = input("Masukkan ID member: ")
+
+    try:
+        member_df = pd.read_csv(member_csv)
+
+        member_info = member_df[member_df['ID'] == member_id]
+
+        if not member_info.empty:
+            print("Informasi Member:")
+            print(member_info)
+        else:
+            print("Member tidak ditemukan.")
+    except FileNotFoundError:
+        print("File CSV tidak ditemukan. Tidak ada member terdaftar.")
+
+    print()
 
 def member_geprek():
+    os.system("cls")
     while True:
         print("=====Menu Member Geprek=====")
         print("1. Daftar Member")
         print("2. Cek Member")
-        print("3. Pembaharuan")
+        print("3. Keluar")
         print()
         input_member = input("Masukkan nomor menu yang diinginkan: ")
-
+        os.system('cls')
         if input_member == '1':
-            print()
-            print("Menu Pendaftaran member")
+            register_member()
         elif input_member == '2':
-            print()
-            print("Menu Cek member")
+            check_member()
         elif input_member == '3':
-            print()
-            print("Menu Pembaharuan member")
+            break
         else:
             print("Tipe pesanan tidak valid. Silakan pilih angka dari 1 hingga 3.")
 
-def cek_histori():
-    pilihan = input("Ingin melihat histori pembatalan pesanan? (Tekan enter untuk melihat histori): ")
+def check_username():
+    global username
+    with open("login_database.csv", 'r', newline="") as file3:
+        reader = csv.reader(file3)
+
+        for line in reader:
+            if username == line[0]:
+                print("Username telah terdaftar, silahkan memilih menu login")
+                return True
+        return False
+        
+def login():
+    global username
+    while True:
+        with open("login_database.csv", 'r', newline="") as file1:
+            reader = csv.reader(file1)
+
+            for line in reader:
+                if username == line[0]:
+                    password = input('Masukkan password akun anda : ')
+                    if password == line[1]:
+                        print('Log in berhasil. ')
+                        return True
+                    else:
+                        print('Password salah. Silakan coba lagi.')
+                        break
+            else:
+                print('Username ini tidak terdaftar. Silakan coba lagi atau daftar terlebih dahulu.')
+        
+        print()
+        print("Coba Lagi...")
+        print()
+        main()
     
-    if pilihan == '' and data_yang_dihapus:
-        histori_file = "pesanan_dihapus.csv"
-        histori = pd.DataFrame(data_yang_dihapus)
-        
-        if not os.path.exists(histori_file):
-            header = ['Nama', 'Tipe Pesanan', 'Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran']
-            histori.to_csv(histori_file, index=False, header=header)
+
+def register():
+    global username
+    username = input("Masukkan username yang ingin didaftarkan : ")
+
+    if check_username():
+        return
+
+    file2 = open("login_database.csv", 'a', newline="")
+    writer = csv.writer(file2)
+    
+    print('\n', 'Loading...', '\n')
+
+    for seconds in range(5, 0, -1):
+        time.sleep(1)
+    print('======Username telah terdaftar======')
+
+    while True:
+        password = input("Buat password 8 kombinasi (harus mengandung satu angka, satu huruf kapital dan satu simbol) : ")
+        if password == "":
+            print('Password tidak boleh kosong')
+        elif len(password) >= 8 and any(char.isdigit() for char in password) \
+                and any(char.isupper() for char in password) and any(not char.isalnum() for char in password):
+                    print('\n', f'====== Akun telah terdaftar. Selamat datang {username} ======', '\n')
+                    writer.writerow([username, password])
+                    file2.close()
+                    break
         else:
-            histori.to_csv(histori_file, mode='a', header=False, index=False)
+            print("Password tidak aman")
+    return False
 
-        data_histori = pd.read_csv(histori_file)
-        data_histori.index += 1  # Ubah indeks mulai dari 1
-        print("Histori Pembatalan Pesanan:")
-        print(data_histori)
-        
-    elif pilihan == '':
-        print("Tidak ada histori pembatalan pesanan.")
+def check_login_csv():
+    login_csv = "login_database.csv"
 
+    if not os.path.exists(login_csv):
+        with open(login_csv, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            # Menulis header ke file CSV jika file baru dibuat
+            writer.writerow(["Username", "Password"])
 
 # Fungsi utama
 def main():
-    global stok_ayam
-    stok_ayam = int(input("Masukkan stok awal Ayam Geprek: "))
-    data_menu = {
-        'Nama Menu': [],
-        'Harga': []
-    }
+    os.system("cls")
+    global username
 
+    # Memanggil fungsi untuk memeriksa dan membuat file login jika belum ada
+    check_login_csv()
+
+    masuk = input('Apakah anda telah memiliki akun? (ya/tidak) : ')
+    if masuk == 'ya':
+        username = input('Masukkan username anda : ')
+        login()
+    else:
+        register()
+
+    os.system('cls')
+    data_menu = load_menu_data()
     while True:
         nama_menu = input("Masukkan nama menu (enter untuk selesai): ")
         if not nama_menu:
@@ -334,58 +574,49 @@ def main():
 
         try:
             harga_menu = int(input(f"Masukkan harga menu {nama_menu}: "))
-            data_menu['Nama Menu'].append(nama_menu)
-            data_menu['Harga'].append(harga_menu)
+            data_menu = data_menu._append({'Nama Menu': nama_menu, 'Harga': harga_menu}, ignore_index=True)
             print(f"Menu {nama_menu} dengan harga Rp {harga_menu} berhasil ditambahkan.")
         except ValueError:
             print("Masukkan harga dalam bentuk angka.")
 
-    menu_df = pd.DataFrame(data_menu)
+    # Save menu data to the combined CSV file
+    data_menu.to_csv(menu_file, index=False)
+    print(f"Data menu telah disimpan ke '{menu_file}'.")
 
-    # Menyimpan menu ke file CSV
-    menu_df.to_csv(menu_pesanan, index=False)
-    print("Data menu telah disimpan ke 'menu_geprek.csv'.")
-    
     if not os.path.exists(namaFile):
-        header = ['Nama', 'Tipe Pesanan','Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran']
+        header = ['Nama', 'Tipe Pesanan','Tanggal', 'Nama Barang', 'Total Harga', 'Pembayaran', 'Nama Kasir']
         pd.DataFrame(columns=header).to_csv(namaFile, index=False)
-
+    os.system('cls')
     while True:
-        print("--------- Menu Kasir Ayam Geprek ---------")
+        print('\n', "--------- Menu Kasir Ayam Geprek ---------")
         print("1. Tambahkan Transaksi")
         print("2. Menampilkan Transaksi")
-        print("3. Lihat Stok Ayam Geprek")
-        print("4. Laporan Keuangan")
-        print("5. Hapus Transaksi")
-        print("6. Cek Histori")
-        print("7. Cetak Struk")
-        print("8. Pendaftaran dan Pengecekan Member")
-        print("9. Tampilkan menu")
-        print("10. Keluar")
-        pilihan = input("Pilih menu (1/2/3/4/5/6/7/8/9/10):")
+        print("3. Laporan Keuangan")
+        print("4. Hapus Transaksi")
+        print("5. Pendaftaran dan Pengecekan Member")
+        print("6. Cek Menu")
+        print("7. Login + Menambah menu baru")
+        print("8. Keluar")
+        pilihan = input("Pilih menu (1/2/3/4/5/6/7/8):")
 
         if pilihan == '1':
             tambahkan_transaksi()
         elif pilihan == '2':
             menampilkan_transaksi()
         elif pilihan == '3':
-            lihat_stok_ayam()
-        elif pilihan == '4':
             laporan_keuangan(namaFile)
-        elif pilihan == '5':
+        elif pilihan == '4':
             hapus_transaksi()
-        elif pilihan == '6':
-            cek_histori()
-        elif pilihan == '7':
-            cetak_struk(namaFile)
-        elif pilihan == '8':
+        elif pilihan == '5':
             member_geprek()
-        elif pilihan == '9':
-            menampilkan_menu()
-        elif pilihan == '10':
+        elif pilihan == '6':
+            display_menu(data_menu)
+        elif pilihan == '7':
+            main()
+        elif pilihan == '8':
             break
         else:
-            print("Pilihan tidak valid, silakan pilih angka 1 sampai 10")
+            print("Pilihan tidak valid, silakan pilih angka 1 sampai 7")
 
 if __name__ == "__main__":
     main()
